@@ -1,9 +1,5 @@
 # Node.js
 
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
 - main
 
@@ -20,10 +16,11 @@ steps:
     npm install
     npm run build
   displayName: 'npm install and build'
+
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(Build.BinariesDirectory)'
-    includeRootFolder: true
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     replaceExistingArchive: true
@@ -38,6 +35,7 @@ steps:
   inputs:
     buildType: 'current'
     downloadType: 'single'
+    artifactName: 'drop'
     downloadPath: '$(System.ArtifactsDirectory)'
 
 - task: AzureWebApp@1
@@ -45,5 +43,5 @@ steps:
     azureSubscription: 'Azure Connection'
     appType: 'webApp'
     appName: 'exercise-13-nuvi'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    package: '$(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip'
     deploymentMethod: 'auto'
